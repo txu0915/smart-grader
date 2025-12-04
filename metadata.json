@@ -1,0 +1,7 @@
+{
+  "name": "SmartGrade AI",
+  "description": "Scan exams, auto-grade with AI, review manually, and email results to students.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
