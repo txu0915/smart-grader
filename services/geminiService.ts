@@ -54,8 +54,13 @@ interface GradingResult {
 }
 
 export const gradeExamPages = async (pages: ExamPage[]): Promise<GradingResult> => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) throw new Error("API Key not found");
+  // VITE SPECIFIC: Access environment variable via import.meta.env
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  
+  if (!apiKey || apiKey.includes("YOUR_ACTUAL_API_KEY")) {
+    console.error("API Key is missing or invalid. Check .env file.");
+    throw new Error("API Key not configured");
+  }
 
   const ai = new GoogleGenAI({ apiKey });
   const allMarks: GradingMark[] = [];
@@ -119,7 +124,7 @@ export const gradeExamPages = async (pages: ExamPage[]): Promise<GradingResult> 
 
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-pro',
+        model: 'gemini-2.0-flash', // Using 2.0 Flash as requested for latest stable, or switch to 3-pro if available in your tier
         contents: {
           parts: [
             { inlineData: { mimeType: page.file.type || 'image/jpeg', data: base64Data } },
@@ -193,6 +198,7 @@ export const gradeExamPages = async (pages: ExamPage[]): Promise<GradingResult> 
       }
     } catch (error) {
       console.error(`Error grading page ${i + 1}:`, error);
+      throw error;
     }
   }
 
